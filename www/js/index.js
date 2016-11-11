@@ -124,10 +124,10 @@ $(function(){
         }
     });
 
-    //評価基準1のもとで選択肢（代替案）の重み付けを実行
-    $('[name="select_second_alt_weight"]').on("change", function(){
+     //評価基準1のもとで選択肢（代替案）の重み付けを実行
+    $('[name="select_first_alt_weight"]').on("change", function(){
         var ci = returnCI();
-        var $btn = $("#second_alts_weight_btn");
+        var $btn = $("#first_alts_weight_btn");
         
         if(ahp.isCorrectCI(ci)){
             $btn.removeClass('ui-state-disabled');
@@ -141,11 +141,10 @@ $(function(){
         console.log(ci);
     });
 
-
     //評価基準2のもとで選択肢（代替案）の重み付けを実行
-    $('[name="select_first_alt_weight"]').on("change", function(){
+    $('[name="select_second_alt_weight"]').on("change", function(){
         var ci = returnCI();
-        var $btn = $("#first_alts_weight_btn");
+        var $btn = $("#second_alts_weight_btn");
         
         if(ahp.isCorrectCI(ci)){
             $btn.removeClass('ui-state-disabled');
@@ -158,6 +157,7 @@ $(function(){
         }
         console.log(ci);
     });
+
 
     //評価基準3のもとで選択肢（代替案）の重み付けを実行
     $('[name="select_third_alt_weight"]').on("change", function(){
