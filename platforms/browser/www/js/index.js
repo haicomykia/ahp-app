@@ -209,7 +209,7 @@ $(function(){
 
         //選択肢（代替案）３の重み付けページ
         if(data.toPage.is("#input_third_alternative_weight")){
-            io.printGoal(ahpParameters.goal)();
+            io.printGoal(ahpParameters.goal);
             io.printAltsToConfirmPageLabel(ahpParameters, 2, "input_third_alternative_weight");
         }
 
@@ -607,7 +607,8 @@ var ahp = {
         for(var i = 0; i < ahp.number_of_compair; i++){
             priorities[i] = 0;
             for(var j = 0; j < weights_alts[i].length; j++){
-                priorities[i] += weights_criteria[j] * weights_alts[j][i];
+                priorities[i] += weights_criteria[j] * weights_alts[i][j];
+                console.log(weights_criteria[j] + "*" + weights_alts[i][j]);
             }
         }
 
