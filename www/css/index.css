@@ -89,71 +89,7 @@ body {
     content: ' > ';
 }
 
-main .upper-level-hierarchy {
-    border: 2px solid #333;
-    text-align: center;
-    padding: .5em;
-    position: relative;
-}
-
-main .upper-level-hierarchy:before, 
-main .upper-level-hierarchy:after {
-    content: '';
-    border: 1em solid transparent;
-    height: 0;
-    width: 0;
-    display: block;
-    position: absolute;
-    bottom: -2em;
-    left: 0;
-    right: 0;
-    margin: auto;
-    border-top-color: #333;
-}
-
-main .upper-level-hierarchy:after {
-    border-top-color: #f9f9f9;
-    bottom: -1.85em;
-}
-
-
  #dialog img {
      box-shadow: 0px 0px 4px rgba(0, 0, 0, .6);
  }
 
-.important-number {
-    font-size: 1.75em;
-}
-
- #best_alternative {
-    color: #D1301F;
-    font-size: 2.25rem;
-    display: block;
-}
-
-#other_alternatives_result {
-    padding-left: 0;
-    list-style: none;   
-}
-
-#other_alternatives_result >li {
-    border: 1px solid #fff;
-    height: 1em;
-    padding: .5em;
-    text-align: left;
-    text-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
-    line-height: 1em;
-    white-space: nowrap;
-}
-
-#other_alternatives_result >li.result_1 {
-    background-color: #E06B61;
-}
-
-#other_alternatives_result >li.result_2 {
-    background-color: #F0B2AC;
-}
-
-#other_alternatives_result >li.result_3 {
-    background-color: #F7D7D3;
-}
