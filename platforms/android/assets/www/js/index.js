@@ -64,10 +64,10 @@ $(function(){
         //評価基準のウエイト
         weights_of_criteria : [],
         
-        //代替案
+        //選択肢（代替案）
         alts : [],
 
-        //代替案のウエイト
+        //選択肢（代替案）のウエイト
         weights_of_alts : [],
 
         //優先度
@@ -80,140 +80,165 @@ $(function(){
     //目標を取得
     $("#input_goal input").on("change", function(){
         ahpParameters.goal = $(this).val();
-        confirmAboutInputedText("目標", "input_criteria");
+        if(ahpParameters.goal !== ""){
+            dialogs.showConfirm("目標" ,ahpParameters.goal);
+        }
     });
 
-    //評価基準に対して確認ダイアログを表示
-    $("#exec_input_criterias").on("tap", function(){
-        confirmAboutInputedText("評価基準", "input_criteria_weight");
+    //評価基準を取得
+    var $criteria_inputbox = $('input[type="text"]', "#input_criteria");
+    $criteria_inputbox.on("change", function(){
+        ahpParameters.criterias[$criteria_inputbox.index(this)] = $(this).val();
+        if(ahpParameters.criterias.length >= ahp.number_of_compair){
+            dialogs.showConfirm("評価基準", ahpParameters.criterias);
+            $("#input_criterias_btn").removeClass('ui-state-disabled'); 
+        }
     });
-
-    //代替案に対して確認ダイアログを表示
-    $("#exec_input_alts").on("tap", function(){
-        confirmAboutInputedText("代替案", "input_first_alternative_weight");
-    });
-
+    
     //評価基準の重み付けを実行
-    $("#compute_criteria_weight").on("tap", function(){
-        ahpParameters.weights_of_criteria = returnWeight();
-        calcCIBeforeChagePage("#input_alternative", ahpParameters.weights_of_criteria);
-    });
-
-    //評価基準1のもとで代替案の重み付けを実行
-    $("#execute_alt_weight_1").on("tap", function(){
-        ahpParameters.weights_of_alts[0] = returnWeight();
-        calcCIBeforeChagePage("#input_second_alternative_weight", ahpParameters.weights_of_alts[0]);
-    });
-
-    //評価基準2のもとで代替案の重み付けを実行
-    $("#execute_alt_weight_2").on("tap", function(){
-        ahpParameters.weights_of_alts[1] = returnWeight();
-        calcCIBeforeChagePage("#input_final_alternative_weight", ahpParameters.weights_of_alts[1]);
-    });
-
-    //評価基準3のもとで代替案の重み付けを実行
-    $("#execute_alt_weight_final").on("tap", function(){
-        ahpParameters.weights_of_alts[2] = returnWeight();
-        calcCIBeforeChagePage("#confirm", ahpParameters.weights_of_alts[2]); 
-    });
-
-    //ページを構築時の処理
-    $(document).on("pagecreate", function(event, data){
+    $('[name="select_criteria_weight"]').on("change", function(){
+        var ci = returnCI();
+        var $btn = $("#criteria_weight_btn");
         
-        //現在のページのidによって処理を分ける
-        switch(event.target.id){
+        //C.Iが正常値ならボタンを有効化し、ウエイトを代入
+        if(ahp.isCorrectCI(ci)){
+            $btn.removeClass('ui-state-disabled');
+            ahpParameters.weights_of_criteria = returnWeight();
+        } else {
+            //数値ならば一対比較が正しくできていないことを示すアラートを出す.
+            if(! isNaN(ci)){
+                dialogs.showNotCorrectCI();
+            }
+            $btn.addClass('ui-state-disabled');
+        }
+        console.log(ci);
+    });
 
-            //評価基準の重み付けページ
-            case "input_criteria_weight":
-                //非同期処理（テキストボックスから重みを取得する処理）が終わってから代替案をプリントする
-                //そのために$.whenを使う
-                $.when(
-                    input(),
-                    printCriteria()
-                )
+     //選択肢（代替案）を取得
+    var $alt_inputbox = $('input[type="text"]', "#input_alternative");
+    $alt_inputbox.on("change", function(){
+        ahpParameters.alts[$alt_inputbox.index(this)] = $(this).val();
+        if(ahpParameters.alts.length >= ahp.number_of_compair){
+            dialogs.showConfirm("選択肢（代替案）", ahpParameters.alts);
+            $("#input_alternative_btn").removeClass('ui-state-disabled'); 
+        }
+    });
 
-                function input(){
-                    var def = new $.Deferred();
+    //評価基準1のもとで選択肢（代替案）の重み付けを実行
+    $('[name="select_second_alt_weight"]').on("change", function(){
+        var ci = returnCI();
+        var $btn = $("#second_alts_weight_btn");
+        
+        if(ahp.isCorrectCI(ci)){
+            $btn.removeClass('ui-state-disabled');
+            ahpParameters.weights_of_alts[0] = returnWeight();
+        } else {
+            if(! isNaN(ci)){
+                dialogs.showNotCorrectCI();
+            }
+            $btn.addClass('ui-state-disabled');
+        }
+        console.log(ci);
+    });
 
-                    ahpParameters.criterias = io.setTextFromInputBox("input_criteria");
 
-                    def.resolve();
-                    return def.promise();
-                }
+    //評価基準2のもとで選択肢（代替案）の重み付けを実行
+    $('[name="select_first_alt_weight"]').on("change", function(){
+        var ci = returnCI();
+        var $btn = $("#first_alts_weight_btn");
+        
+        if(ahp.isCorrectCI(ci)){
+            $btn.removeClass('ui-state-disabled');
+            ahpParameters.weights_of_alts[1] = returnWeight();
+        } else {
+            if(! isNaN(ci)){
+                dialogs.showNotCorrectCI();
+            }
+            $btn.addClass('ui-state-disabled');
+        }
+        console.log(ci);
+    });
 
-                function printCriteria(){
-                    var def = new $.Deferred();
+    //評価基準3のもとで選択肢（代替案）の重み付けを実行
+    $('[name="select_third_alt_weight"]').on("change", function(){
+        var ci = returnCI();
+        var $btn = $("#third_alts_weight_btn");
+        
+        if(ahp.isCorrectCI(ci)){
+            $btn.removeClass('ui-state-disabled');
+            ahpParameters.weights_of_alts[2] = returnWeight();
+        } else {
+            if(! isNaN(ci)){
+                dialogs.showNotCorrectCI();
+            }
+            $btn.addClass('ui-state-disabled');
+        }
+        console.log(ci);
+    });
 
-                    var $labels = $("label", "#input_criteria_form");
-                    $labels.eq(0).empty().text(io.generateLabelStr(ahpParameters.criterias[0], ahpParameters.criterias[1]));
-                    $labels.eq(1).empty().text(io.generateLabelStr(ahpParameters.criterias[0], ahpParameters.criterias[2]));
-                    $labels.eq(2).empty().text(io.generateLabelStr(ahpParameters.criterias[1], ahpParameters.criterias[2]));
+    //新しいページを表示した後の処理
+    $(document).on("pagecontainershow", function(event, data){
+        
+        //ページのidによって処理を分ける
+        //評価基準入力ページ
+        if(data.toPage.is("#input_criteria") || data.toPage.is("#input_alternative")){
+            $(".level-goal", "#" + io.getCurrentPageId()).text("目標：" + ahpParameters.goal);
+        }   
 
-                    def.resolve();
-                    return def.promise();
-                }
-                break;
-            
-            //代替案1の重み付けページ
-            case "input_first_alternative_weight":
-                $.when(
-                    io.inputAlts(ahpParameters, 0),
-                    io.printAltsToConfirmPageLabel(ahpParameters, 0, "input_first_alternative_weight")
-                )
-                break;
-            
-            //代替案2の重み付けページ
-            case "input_second_alternative_weight":
-                $.when(
-                    io.inputAlts(ahpParameters, 1),
-                    io.printAltsToConfirmPageLabel(ahpParameters, 1, "input_second_alternative_weight")
-                )
-                break;
-            
-            //代替案３の重み付けページ
-            case "input_final_alternative_weight":
-                $.when(
-                    io.inputAlts(ahpParameters, 2),
-                    io.printAltsToConfirmPageLabel(ahpParameters, 2, "input_final_alternative_weight")
-                )
-                break;
+        //評価基準の重み付けページ
+        if(data.toPage.is("#input_criteria_weight")){
+            $(".level-goal", "#" + io.getCurrentPageId()).text("目標：" + ahpParameters.goal);
+            ahpParameters.criterias = io.setTextFromInputBox("input_criteria");
+            var $labels = $("label", "#input_criteria_form");
+            $labels.eq(0).empty().text(io.generateLabelStr(ahpParameters.criterias[0], ahpParameters.criterias[1]));
+            $labels.eq(1).empty().text(io.generateLabelStr(ahpParameters.criterias[0], ahpParameters.criterias[2]));
+            $labels.eq(2).empty().text(io.generateLabelStr(ahpParameters.criterias[1], ahpParameters.criterias[2]));
+        }
 
-            //確認ページ
-            case "confirm":
+        //選択肢（代替案）1の重み付けページ
+        if(data.toPage.is("#input_first_alternative_weight")){
+            $(".level-goal", "#" + io.getCurrentPageId()).text("目標：" + ahpParameters.goal);
+            ahpParameters.alts = io.setTextFromInputBox("input_alternative");
+            io.inputAlts(ahpParameters, 0);
+            io.printAltsToConfirmPageLabel(ahpParameters, 0, "input_first_alternative_weight");
+        }
 
-                //目的をプリント
+        //選択肢（代替案）2の重み付けページ
+        if(data.toPage.is("#input_second_alternative_weight")){
+            $(".level-goal", "#" + io.getCurrentPageId()).text("目標：" + ahpParameters.goal);
+            io.inputAlts(ahpParameters, 1);
+            io.printAltsToConfirmPageLabel(ahpParameters, 1, "input_second_alternative_weight");
+        }
+
+        //選択肢（代替案）３の重み付けページ
+        if(data.toPage.is("#input_third_alternative_weight")){
+            $(".level-goal", "#" + io.getCurrentPageId()).text("目標：" + ahpParameters.goal);
+            io.inputAlts(ahpParameters, 2);
+            io.printAltsToConfirmPageLabel(ahpParameters, 2, "input_third_alternative_weight");
+        }
+
+        //確認ページ
+        if(data.toPage.is("#confirm")){
+            //目的をプリント
                 $("#goal_text").empty().text(ahpParameters.goal);
 
                 //評価基準をリストに表示
                 io.printToList("criterias_list_elem", ahpParameters.criterias);
 
-                //一対比較の結果を表示
-                var criterias_selected_values = io.parseSelectboxValue(ahp.number_of_compair, "input_criteria_weight");
-
                 printAltsWeight(ahpParameters.criterias, "criteria_weight", "input_criteria_weight");
-                
-                //代替案をリストに表示
-                io.printToList("alts_list_elem", ahpParameters.alts);
 
-                //考慮する代替案をプリント
-                var iter = 0;
-                $(".list-heading-criteria").each(function(){
-                    $(this).text(ahpParameters.criterias[iter] + "だけを考慮したときの重み付け");
-                    iter++;
-                });
-
-                //代替案のウエイトを評価基準ごとに表示
+                //選択肢（代替案）のウエイトを評価基準ごとに表示
                 printAltsWeight(ahpParameters.alts, "alt-weight-under-first-ceriteria", "input_first_alternative_weight");
                 printAltsWeight(ahpParameters.alts, "alt-weight-under-second-ceriteria", "input_second_alternative_weight");
-                printAltsWeight(ahpParameters.alts, "alt-weight-under-final-ceriteria", "input_final_alternative_weight");
+                printAltsWeight(ahpParameters.alts, "alt-weight-under-third-ceriteria", "input_third_alternative_weight");
                 
-                //評価基準・代替案の重み付けの結果をプリント
+                //評価基準・選択肢（代替案）の重み付けの結果をプリント
                 //printed_paramter:表示するパラメータ
                 //list_class_name : ウエイトを表示するリストのクラス名
                 //input_page_id:表示するウエイトが入力されたページのid属性値
-                function printAltsWeight(printed_paramter, list_class_name, input_page_id){
+                function printAltsWeight(printed_paramter, list_class_name, input_alts_weight_page_id){
 
-                    var alts_selected_values = io.parseSelectboxValue(ahp.number_of_compair, input_page_id);
+                    var alts_selected_values = io.parseSelectboxValue(input_alts_weight_page_id);
                     var $list_elem = $("#confirm ol").children("." + list_class_name);
 
                     $list_elem.empty();
@@ -227,210 +252,168 @@ $(function(){
                     $list_elem.eq(2).text(
                         io.generateLabelStrForConfirm(printed_paramter[1], printed_paramter[2], alts_selected_values[2])
                     );
+
+                    //選択肢（代替案）をリストに表示
+                    io.printToList("alts_list_elem", ahpParameters.alts);
+
+                    //考慮する選択肢（代替案）をプリント
+                    var iter = 0;
+                    $(".list-heading-criteria").each(function(){
+                        $(this).text(ahpParameters.criterias[iter] + "だけを考慮したときの重み付け");
+                        iter++;
+                    });
                 }
-                break;
+        }
 
-            //結果ページ
-            case "result":
-                $.when(
-                    evalPriority(ahpParameters),
-                    printResult(ahpParameters)
-                )
+        //結果ページ
+        if(data.toPage.is("#result")){
+    
+            ahpParameters.priorities = ahp.clacPriority(ahpParameters.weights_of_criteria, ahpParameters.weights_of_alts);
+            ahpParameters.priorities_rank = ahp.rank(ahpParameters.priorities);
+            console.log(ahpParameters.priorities);
 
-                //代替案を計算して降順に順位付け
-                function evalPriority(ahpParameters){
-                    var def = new $.Deferred();
-
-                    ahpParameters.priorities = ahp.clacPriority(ahpParameters.weights_of_criteria, ahpParameters.weights_of_alts);
-                    ahpParameters.priorities_rank = ahp.rank(ahpParameters.priorities);
-                    console.log(ahpParameters.priorities);
-                    console.log(ahpParameters.priorities_rank);
-
-                    def.resolve();
-                    return def.promise();
-                }
-               
-                //結果を表示
-                function printResult(ahpParameters){
-                    var def = new $.Deferred();
-
-                    //最適な代替案を表示
-                    //優先度が最大値のインデックスを返す
-                    var max = ahpParameters.priorities[0];
-
-                    var max_idx;
-                    for(max_idx = 0; max_idx < ahp.number_of_compair; max_idx++){
-                        if(ahpParameters.priorities[max_idx] < max){
-                            break;
-                        }
-                    }
+            //総合目的
+            $("#resolved_goal").text(ahpParameters.goal);
+            //最適な選択肢（代替案）を表示
+            //優先度が1位のインデックスをフィルタリングする
+            for(var max_idx = 0; max_idx < ahp.number_of_compair; max_idx++){
+                if(ahpParameters.priorities_rank[max_idx] === 1){
                     $("#best_alternative").text(ahpParameters.alts[max_idx]);
-
-                    //全代替案の優先順位を表示
-                    var $list = $("#other_alternatives_result").children("li");
-                    $list.empty();
-
-                    for(var i = 0; i < ahp.number_of_compair; i++){
-                        $list.eq(i).text(
-                            ahpParameters.alts[i] + "の優先順位は" + ahpParameters.priorities_rank[i] + "番目"
-                        );
-                    }
-
-                    def.resolve();
-                    return def.promise();
+                    break;
                 }
-
-                break;
-
-            default:
-                break;
+            }
+            
+            //ページの内側の横幅
+            var width = $("#" + io.getCurrentPageId()).innerWidth();
+            //全選択肢（代替案）の優先順位を表示
+            var $list = $("#other_alternatives_result").children("li");
+    
+            //DOM操作で棒グラフを描く
+            for(var i = 0; i < $list.length; i++){
+                var weight_raito = Math.round(ahpParameters.priorities[i] * 100);
+                $list.eq(i).css({
+                    "width" : weight_raito + "%"
+                }).text(ahpParameters.alts[i] + ": " + weight_raito + "%").addClass("result_" + (i + 1));
+            }
         }
     });
 
-    //現在のページのidを返す
-    function getCurrenPageId(){
-        return $.mobile.path.getLocation().split("#")[1];
-    }
+    //重み付けがされていない要素がないかチェックする
+
 
     //現在のページのセレクトボックスの値からウエイトを計算
     function returnWeight(){
-        return ahp.calcWeight(ahp.makeCompairMatrix(io.computeImportance(ahp.number_of_compair, getCurrenPageId())));
+        return ahp.calcWeight(io.getSelectedScale());
     }
 
-    //ページ遷移する前にCIを計算してページ遷移するかダイアログを出す
-    //next_page_id:遷移先ページのid属性値
-    //weight:ウエイト
-    function calcCIBeforeChagePage(next_page_id, weight){
-
-        //重要性の尺度
-        var scales = io.computeImportance(ahp.number_of_compair, getCurrenPageId());
-        //C.I
-        const CI = ahp.clacCI(scales, weight);
-        console.log(CI);
-
-        //CIが数値ではない場合
-        if(! isNaN(CI)){
-            //C.Iが正常値のときかユーザが「続行」を選択した場合、ページ遷移する
-            if (ahp.isCorrectCI(CI)){
-                $("body").pagecontainer("change", next_page_id, {transition:"slide"});
-            } else {
-
-                const MESSAGE = '重み付けの基準に矛盾があります。\n このまま続けると正しい結果が得られない可能性があります。続けますか？';
-
-                //cordovaのnotificationプラグインが使える場合は、cordovaの確認ダイアログを使う
-                if(navigator.notification){
-                    navigator.notification.confirm(
-                        MESSAGE,                      //Message
-                        done,                         //Callback function
-                        '重みづけの基準に矛盾があります',  //Title
-                        ['はい', 'いいえ']              //Buttons
-                    );
-                    //はいを押したらページ遷移
-                    function done(buttonIndex){
-                        if(buttonIndex === 1){
-                            $("body").pagecontainer("change", next_page_id, {transition:"slide"});
-                        }
-                    }
-                } else{
-                    //使えない場合はJavaScriptのconfirmダイアログを表示させる
-                    if(confirm(MESSAGE)){
-                        $("body").pagecontainer("change", next_page_id, {transition:"slide"});
-                    }
-                }
-            }
-        } else {
-            //重み付けされていない項目がある場合はアラートを表示
-            var MESSAGE = 
-            "重み付けされていない項目があります。\n 「OK」をクリックして重み付けを行ってください。\n「詳しい手順はこちら」をクリックすると重み付けの説明が見られます。";
-
-            if(navigator.notification){
-                navigator.notification.alert(
-                    MESSAGE,
-                    done,
-                    "重み付けされていない項目があります",
-                    "OK"
-                );
-                //ボタンを押したらページ遷移しない
-                function done(){
-                    return -1;
-                }
-            } else {
-                //使えない場合はJavaScriptのalert関数で代用
-                alert(MESSAGE);
-                return -1;
-            }
-        }
-    }
-
-    //テキストボックスに入力された値に対して確認ダイアログを表示
-    //confirmParameter : 確認したいAHPのパラメータ
-    //next_page_id:遷移先ページのid属性値
-    function confirmAboutInputedText(confirmParameter ,next_page_id){
-
-        //テキストボックスに入力された値
-        var texts = io.setTextFromInputBox(getCurrenPageId());
-        //アラートに表示するテキスト
-        var alertText = "";
-
-        //確認したいAHPのパラメータが2つ以上の場合は、「パラメータ : n番目の入力値」で表示
-        if(texts.length > 1){
-            for(var i = 0; i < texts.length; i++){
-                alertText += confirmParameter + (i + 1) + ":" + texts[i] + "\n";
-            }
-        } else {
-            //１つの場合は「パラメータ：入力値」で表示
-            alertText += confirmParameter + ":" + texts + "\n";
-        }
-        
-        alertText = "次の" + confirmParameter + "を入力しました.\n" + alertText;
-
-        //cordovaのnotificationプラグインが使える場合は、cordovaのアラートを使う
-        if(navigator.notification){
-            navigator.notification.alert(
-                alertText,
-                done,
-                confirmParameter + "の確認",
-                "OK"
-            );
-            //ボタンを押したらページ遷移
-            function done(){
-                $("body").pagecontainer("change", "#" + next_page_id, {transition:"slide"});
-            }
-        } else {
-            //使えない場合はJavaScriptのalert関数で代用
-            alert(alertText);
-            $("body").pagecontainer("change", "#" + next_page_id, {transition:"slide"});
-        }
+    //現在のページのセレクトボックスの値からC.Iを計算
+    function returnCI(){
+        return ahp.clacCI(io.getSelectedScale());
     }
 });
 
+//ダイアログを出す処理
+var dialogs = {
+
+    showHasNotWeighted : function(){
+        //重み付けされていない項目がある場合はアラートを表示
+        var MESSAGE = 
+        "重み付けされていない項目があります。\n 「OK」をクリックして重み付けを行ってください。\n「詳しい手順はこちら」をクリックすると重み付けの説明が見られます。";
+
+        if(navigator.notification){
+            navigator.notification.alert(
+                MESSAGE,
+                done,
+                "重み付けされていない項目があります",
+                "OK"
+            );
+            //ボタンを押したらページ遷移しない
+            function done(){
+                return false;
+            }
+        } else {
+            //使えない場合はJavaScriptのalert関数で代用
+            alert(MESSAGE);
+            return false;
+        }
+    },
+
+    //C.Iが異常値のとき
+    showNotCorrectCI : function(){
+        const MESSAGE = '重み付けの基準に矛盾があります。\n 重み付けをやり直してください.';
+
+        //cordovaのnotificationプラグインが使える場合は、cordovaの確認ダイアログを使う
+        if(navigator.notification){
+            navigator.notification.confirm(
+                MESSAGE,                      //Message
+                done,                         //Callback function
+                '重みづけによる優先度に矛盾があります',  //Title
+                'OK'                          //Buttons
+            );
+            //はいを押したらページ遷移
+            function done(buttonIndex){
+                return false;
+            }
+        } else{
+            //使えない場合はJavaScriptのconfirmダイアログを表示させる
+            if(alert(MESSAGE)){
+                return false;
+            }
+        }
+    },
+
+    //入力した値の確認ダイアログを出す
+    showConfirm : function(printed_paramter_name, confirmed_parameter){
+        var message = "";
+
+        if(typeof confirmed_parameter === "string") {
+            message = printed_paramter_name + "「" + confirmed_parameter + "」を入力しました. \n";
+        } else if($.isArray(confirmed_parameter)) {
+            message = "次の" + printed_paramter_name + "を入力しました. \n";
+            for(var i = 0; i < ahp.number_of_compair; i++){
+                message = message + printed_paramter_name + (i + 1) + ":" + confirmed_parameter[i] + "\n";
+            }
+        } else {
+            message = "異常な値が入力されました." + printed_paramter_name + "を入力してください.";
+        }
+
+        if(navigator.notification){
+            navigator.notification.alert(
+                message,                      //Message
+                done,                         //Callback function
+                '入力の確認',                   //Title
+                'OK'                          //Buttons
+            );
+        //はいを押したらページ遷移
+            function done(){
+                return 0; 
+            }
+        } else{
+            alert(message);
+            return 0;
+        }
+    } 
+}
+
 //出入力の処理
 var io = {
-    //選択されたセレクトボックスのvalue属性値を配列に格納して返す
-    parseSelectboxValue : function(number_of_elem, page_id){
-        var selectbox_values = new Array(number_of_elem);
-        var iter = 0;
-
-        $("#" + page_id + " option:selected").each(function(){
-            selectbox_values[iter] = parseInt($(this).val(), 10);
-            iter++;
-        });
-
-        return selectbox_values;
+    //現在のページのid属性値を返す
+    getCurrentPageId : function(){
+        return $.mobile.path.getLocation().split("#")[1];
     },
 
     //セレクトボックスから重要性の尺度を取得
-    computeImportance : function(number_of_elem, page_id){
-        //一対比較の結果の配列
-        var pair_compair_values = new Array(number_of_elem);
-        //セレクトボックスのvalue属性値を取得
-        var selected_values = io.parseSelectboxValue(number_of_elem, page_id);
+    //選択されていない場合はnull値が設定される.
+    //評価基準・選択肢（代替案）の要素数とセレクトボックスの数が対応しているという前提で動く.
+    getSelectedScale : function(){
+        var var_scale = [];
 
-        for(var i = 0; i < number_of_elem; i++){
-            pair_compair_values[i] = ahp.SCALES[selected_values[i]];
+        var elem = $("select", "#" + io.getCurrentPageId());
+        for(var i = 0; i < elem.length; i++){
+            var_scale[i] = ahp.SCALES[parseInt($("option:selected", elem.eq(i)).val(), 10)];
         }
 
-        return pair_compair_values;
+        return var_scale;
     },
 
     //インプットボックスの値を配列に格納
@@ -444,32 +427,38 @@ var io = {
         return ary;
     },
 
-    //代替案の重み付けページに評価基準と比較のためのlabel文字列をプリント
-    printAltsToConfirmPageLabel : function(ahpParameters, active_criteria_number, page_id){
-        var def = new $.Deferred();
+    //指定したページにあるセレクトボックスのvalue属性値を取得
+    //source_page_id:取得するページのid
+    parseSelectboxValue : function(source_page_id){
 
-        page_id = "#" + page_id;
+        var $options = $("option:selected", "#" + source_page_id);
+        var values = [];
 
-        $(".active_criteria", page_id).empty().text(ahpParameters.criterias[active_criteria_number]);
+        for(var i = 0; i < $options.length; i++){
+            values[i] = parseInt($options.eq(i).val(), 10);
+        }
 
-        var $labels = $("label", page_id);
+        return values;
+    },
+
+    //選択肢（代替案）の重み付けページに評価基準と比較のためのlabel文字列をプリント
+    printAltsToConfirmPageLabel : function(ahpParameters, active_criteria_number, input_alts_weight_page_id){
+
+        input_alts_weight_page_id = "#" + input_alts_weight_page_id;
+
+        $(".active_criteria", input_alts_weight_page_id).empty().text(ahpParameters.criterias[active_criteria_number]);
+
+        var $labels = $("label", input_alts_weight_page_id);
 
         $labels.eq(0).empty().text(io.generateLabelStr(ahpParameters.alts[0], ahpParameters.alts[1]));
         $labels.eq(1).empty().text(io.generateLabelStr(ahpParameters.alts[0], ahpParameters.alts[2]));
         $labels.eq(2).empty().text(io.generateLabelStr(ahpParameters.alts[1], ahpParameters.alts[2]));
 
-        def.resolve();
-        return def.promise();
     },
 
-    //代替案を取得して代入
+    //選択肢（代替案）を取得して代入
     inputAlts : function(ahpParameters, page_id){
-        var def = new $.Deferred();
-
         ahpParameters.alts = io.setTextFromInputBox("input_alternative");
-
-        def.resolve();
-        return def.promise();
     },
 
     //比較のためのlabel文字列を生成
@@ -493,13 +482,13 @@ var io = {
     },
 
     //li要素に配列の各要素の値をプリント
-    //ol_ul_id_name:ol要素またはul要素のid名
+    //list_id_name:ol要素またはul要素のid名
     //printedAry:プリントされる配列
-    printToList : function(ol_ul_id_name, printedAry){
-        var $lists = $("#" + ol_ul_id_name).children("li");
+    printToList : function(list_id_name, printed_ary){
+        var $lists = $("#" + list_id_name).children("li");
         $lists.empty();
         for(var i = 0; i < $lists.length; i++){
-            $lists.eq(i).text(printedAry[i]);
+            $lists.eq(i).text(printed_ary[i]);
         }
     }
 }
@@ -507,12 +496,14 @@ var io = {
 //AHPで使う関数をまとめたオブジェクト
 var ahp = {
 
-    number_of_compair : 3,                                                    //評価基準・代替案の要素数
-    SCALES : [0.11111111, 0.14285714, 0.2, 0.3333333, 1, 3, 5, 7, 9, null],      //重要性の尺度（重み付けされてないときは最後の要素を参照して1）
+    number_of_compair : 3,                                                    //評価基準・選択肢（代替案）の要素数
+    SCALES : [0.1111, 0.1428, 0.2, 0.3333, 1, 3, 5, 7, 9, null],   //重要性の尺度（重み付けされてないときは最後の要素を参照してnull）
 
     //比較行列を生成するメソッドを定義
-    //var_scale：評価基準・代替案の評価値
+    //var_scale：評価基準・選択肢（代替案）の評価値
     makeCompairMatrix : function(var_scale){
+
+        console.log(var_scale);
 
         var comparison_matrix = [];			                                    //比較行列
         for (var i = 0; i < ahp.number_of_compair; i++) {
@@ -543,9 +534,10 @@ var ahp = {
     },
 
     //ウエイトの算出
-    calcWeight : function(comparison_matrix){
+    calcWeight : function(var_scale){
 
-
+        //比較行列
+        var comparison_matrix = ahp.makeCompairMatrix(var_scale);
         //幾何平均の配列
 	    var geometric_means = [];
 
@@ -576,27 +568,27 @@ var ahp = {
     },
 
     //整合度指数を返す
-    //注意：jQuery Mobileと一緒に実行すると
-    //var_scale：評価基準・代替案の評価値 （重要性の尺度）
-    //weights：評価基準・代替案の重み
-    clacCI : function(var_scale, weights){
+    //var_scale：評価基準・選択肢（代替案）の評価値 （重要性の尺度）
+    clacCI : function(var_scale){
 
         //整合度指数(C.I)を求めるための配列
         var ci_elem = [];
         //ペア比較マトリックス
         var scale_tbl = ahp.makeCompairMatrix(var_scale);
+        //ウエイト
+        var weight = ahp.calcWeight(var_scale);
 
-        //各評価基準（代替案）の重要性の尺度 × ウエイトの合計を求める
+        //各評価基準（選択肢（代替案））の重要性の尺度 × ウエイトの合計を求める
         for (var i = 0; i < scale_tbl.length; i++) {
             ci_elem[i] = 0;
             for (var j = 0; j < scale_tbl[i].length; j++) {
-                ci_elem[i] += scale_tbl[i][j] * weights[j];
+                ci_elem[i] += scale_tbl[i][j] * weight[j];
             }
         }
 
         //合計を各要素の重みで割る
         for (i = 0; i < ci_elem.length; i++) {
-            ci_elem[i] = ci_elem[i] / weights[i];
+            ci_elem[i] = ci_elem[i] / weight[i];
         }
 
         var avg = 0;
@@ -610,9 +602,9 @@ var ahp = {
 
     //C.Iが正常値かチェックする
     isCorrectCI : function(ci){
-        const MAX_CI = 0.15;                          //C.Iの正常値
-        return ci < MAX_CI ? true : false;
-    },
+        const MAX_CI = 0.15;                        //C.Iの正常値
+        return ci < MAX_CI ? true : false;          //正常値ならばtrueを返す
+    },  
 
     //総合評価を行う
     clacPriority : function(weights_criteria, weights_alts){
@@ -623,7 +615,7 @@ var ahp = {
         for(var i = 0; i < ahp.number_of_compair; i++){
             priorities[i] = 0;
             for(var j = 0; j < weights_alts[i].length; j++){
-                priorities[i] += weights_criteria[i] * weights_alts[i][j];
+                priorities[i] += weights_criteria[j] * weights_alts[j][i];
             }
         }
 
