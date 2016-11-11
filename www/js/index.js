@@ -345,12 +345,12 @@ var dialogs = {
             );
             //はいを押したらページ遷移
             function done(){
-                return false;
+                return 0;
             }
         } else{
             //使えない場合はJavaScriptのalertダイアログを表示させる
             if(alert(MESSAGE)){
-                return false;
+                return 0;
             }
         }
     },
