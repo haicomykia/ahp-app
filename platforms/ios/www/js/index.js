@@ -182,13 +182,12 @@ $(function(){
         //ページのidによって処理を分ける
         //評価基準入力ページ
         if(data.toPage.is("#input_criteria") || data.toPage.is("#input_alternative")){
-            $(".level-goal", "#" + io.getCurrentPageId()).text("目標：" + ahpParameters.goal);
+            io.printGoal(ahpParameters.goal);
         }   
 
         //評価基準の重み付けページ
         if(data.toPage.is("#input_criteria_weight")){
-            $(".level-goal", "#" + io.getCurrentPageId()).text("目標：" + ahpParameters.goal);
-            ahpParameters.criterias = io.setTextFromInputBox("input_criteria");
+            io.printGoal(ahpParameters.goal);
             var $labels = $("label", "#input_criteria_form");
             $labels.eq(0).empty().text(io.generateLabelStr(ahpParameters.criterias[0], ahpParameters.criterias[1]));
             $labels.eq(1).empty().text(io.generateLabelStr(ahpParameters.criterias[0], ahpParameters.criterias[2]));
@@ -197,72 +196,69 @@ $(function(){
 
         //選択肢（代替案）1の重み付けページ
         if(data.toPage.is("#input_first_alternative_weight")){
-            $(".level-goal", "#" + io.getCurrentPageId()).text("目標：" + ahpParameters.goal);
+            io.printGoal(ahpParameters.goal);
             ahpParameters.alts = io.setTextFromInputBox("input_alternative");
-            io.inputAlts(ahpParameters, 0);
             io.printAltsToConfirmPageLabel(ahpParameters, 0, "input_first_alternative_weight");
         }
 
         //選択肢（代替案）2の重み付けページ
         if(data.toPage.is("#input_second_alternative_weight")){
-            $(".level-goal", "#" + io.getCurrentPageId()).text("目標：" + ahpParameters.goal);
-            io.inputAlts(ahpParameters, 1);
+            io.printGoal(ahpParameters.goal);
             io.printAltsToConfirmPageLabel(ahpParameters, 1, "input_second_alternative_weight");
         }
 
         //選択肢（代替案）３の重み付けページ
         if(data.toPage.is("#input_third_alternative_weight")){
-            $(".level-goal", "#" + io.getCurrentPageId()).text("目標：" + ahpParameters.goal);
-            io.inputAlts(ahpParameters, 2);
+            io.printGoal(ahpParameters.goal)();
             io.printAltsToConfirmPageLabel(ahpParameters, 2, "input_third_alternative_weight");
         }
 
         //確認ページ
         if(data.toPage.is("#confirm")){
             //目的をプリント
-                $("#goal_text").empty().text(ahpParameters.goal);
+            io.printGoal(ahpParameters.goal);
 
-                //評価基準をリストに表示
-                io.printToList("criterias_list_elem", ahpParameters.criterias);
+            //評価基準をリストに表示
+            io.printToList("criterias_list_elem", ahpParameters.criterias);
 
-                printAltsWeight(ahpParameters.criterias, "criteria_weight", "input_criteria_weight");
+            printAltsWeight(ahpParameters.criterias, "criteria_weight", "input_criteria_weight");
 
-                //選択肢（代替案）のウエイトを評価基準ごとに表示
-                printAltsWeight(ahpParameters.alts, "alt-weight-under-first-ceriteria", "input_first_alternative_weight");
-                printAltsWeight(ahpParameters.alts, "alt-weight-under-second-ceriteria", "input_second_alternative_weight");
-                printAltsWeight(ahpParameters.alts, "alt-weight-under-third-ceriteria", "input_third_alternative_weight");
-                
-                //評価基準・選択肢（代替案）の重み付けの結果をプリント
-                //printed_paramter:表示するパラメータ
-                //list_class_name : ウエイトを表示するリストのクラス名
-                //input_page_id:表示するウエイトが入力されたページのid属性値
-                function printAltsWeight(printed_paramter, list_class_name, input_alts_weight_page_id){
+            //選択肢（代替案）のウエイトを評価基準ごとに表示
+            printAltsWeight(ahpParameters.alts, "alt-weight-under-first-ceriteria", "input_first_alternative_weight");
+            printAltsWeight(ahpParameters.alts, "alt-weight-under-second-ceriteria", "input_second_alternative_weight");
+            printAltsWeight(ahpParameters.alts, "alt-weight-under-third-ceriteria", "input_third_alternative_weight");
+            
+            //評価基準・選択肢（代替案）の重み付けの結果をプリント
+            //printed_paramter:表示するパラメータ
+            //list_class_name : ウエイトを表示するリストのクラス名
+            //input_page_id:表示するウエイトが入力されたページのid属性値
+            function printAltsWeight(printed_paramter, list_class_name, input_alts_weight_page_id){
 
-                    var alts_selected_values = io.parseSelectboxValue(input_alts_weight_page_id);
-                    var $list_elem = $("#confirm ol").children("." + list_class_name);
+                var alts_selected_values = io.parseSelectboxValue(input_alts_weight_page_id);
+                var $list_elem = $("#confirm ol").children("." + list_class_name);
 
-                    $list_elem.empty();
+                $list_elem.empty();
 
-                    $list_elem.eq(0).text(
-                        io.generateLabelStrForConfirm(printed_paramter[0], printed_paramter[1], alts_selected_values[0])
-                    );
-                    $list_elem.eq(1).text(
-                        io.generateLabelStrForConfirm(printed_paramter[0], printed_paramter[2], alts_selected_values[1])
-                    );
-                    $list_elem.eq(2).text(
-                        io.generateLabelStrForConfirm(printed_paramter[1], printed_paramter[2], alts_selected_values[2])
-                    );
+                $list_elem.eq(0).text(
+                    io.generateLabelStrForConfirm(printed_paramter[0], printed_paramter[1], alts_selected_values[0])
+                );
+                $list_elem.eq(1).text(
+                    io.generateLabelStrForConfirm(printed_paramter[0], printed_paramter[2], alts_selected_values[1])
+                );
+                $list_elem.eq(2).text(
+                    io.generateLabelStrForConfirm(printed_paramter[1], printed_paramter[2], alts_selected_values[2])
+                );
 
-                    //選択肢（代替案）をリストに表示
-                    io.printToList("alts_list_elem", ahpParameters.alts);
+                //選択肢（代替案）をリストに表示
+                io.printToList("alts_list_elem", ahpParameters.alts);
 
-                    //考慮する選択肢（代替案）をプリント
-                    var iter = 0;
-                    $(".list-heading-criteria").each(function(){
-                        $(this).text(ahpParameters.criterias[iter] + "だけを考慮したときの重み付け");
-                        iter++;
-                    });
-                }
+                //考慮する選択肢（代替案）をプリント
+                var iter = 0;
+                $(".list-heading-criteria").each(function(){
+                    $(this).text(ahpParameters.criterias[iter] + "だけを考慮したときの重み付け");
+                    iter++;
+                });
+            }
         }
 
         //結果ページ
@@ -274,8 +270,9 @@ $(function(){
 
             //総合目的
             $("#resolved_goal").text(ahpParameters.goal);
+
             //最適な選択肢（代替案）を表示
-            //優先度が1位のインデックスをフィルタリングする
+            //優先度が1位のインデックスを表示
             for(var max_idx = 0; max_idx < ahp.number_of_compair; max_idx++){
                 if(ahpParameters.priorities_rank[max_idx] === 1){
                     $("#best_alternative").text(ahpParameters.alts[max_idx]);
@@ -283,9 +280,8 @@ $(function(){
                 }
             }
             
-            //ページの内側の横幅
-            var width = $("#" + io.getCurrentPageId()).innerWidth();
-            //全選択肢（代替案）の優先順位を表示
+
+            //全選択肢（代替案）の棒グラフになるli要素
             var $list = $("#other_alternatives_result").children("li");
     
             //DOM操作で棒グラフを描く
@@ -297,9 +293,6 @@ $(function(){
             }
         }
     });
-
-    //重み付けがされていない要素がないかチェックする
-
 
     //現在のページのセレクトボックスの値からウエイトを計算
     function returnWeight(){
@@ -315,9 +308,9 @@ $(function(){
 //ダイアログを出す処理
 var dialogs = {
 
+    //重み付けされていない項目がある場合はアラートを表示
     showHasNotWeighted : function(){
-        //重み付けされていない項目がある場合はアラートを表示
-        var MESSAGE = 
+        const MESSAGE = 
         "重み付けされていない項目があります。\n 「OK」をクリックして重み付けを行ってください。\n「詳しい手順はこちら」をクリックすると重み付けの説明が見られます。";
 
         if(navigator.notification){
@@ -344,18 +337,18 @@ var dialogs = {
 
         //cordovaのnotificationプラグインが使える場合は、cordovaの確認ダイアログを使う
         if(navigator.notification){
-            navigator.notification.confirm(
+            navigator.notification.alert(
                 MESSAGE,                      //Message
                 done,                         //Callback function
                 '重みづけによる優先度に矛盾があります',  //Title
                 'OK'                          //Buttons
             );
             //はいを押したらページ遷移
-            function done(buttonIndex){
+            function done(){
                 return false;
             }
         } else{
-            //使えない場合はJavaScriptのconfirmダイアログを表示させる
+            //使えない場合はJavaScriptのalertダイアログを表示させる
             if(alert(MESSAGE)){
                 return false;
             }
@@ -441,6 +434,11 @@ var io = {
         return values;
     },
 
+    //総合目的をプリント
+    printGoal: function(goal){
+        $(".level-goal", "#" + io.getCurrentPageId()).text("目標：" + goal);
+    },
+
     //選択肢（代替案）の重み付けページに評価基準と比較のためのlabel文字列をプリント
     printAltsToConfirmPageLabel : function(ahpParameters, active_criteria_number, input_alts_weight_page_id){
 
@@ -456,11 +454,6 @@ var io = {
 
     },
 
-    //選択肢（代替案）を取得して代入
-    inputAlts : function(ahpParameters, page_id){
-        ahpParameters.alts = io.setTextFromInputBox("input_alternative");
-    },
-
     //比較のためのlabel文字列を生成
     generateLabelStr : function(compare_str, compared_str){
         return compare_str + "は" + compared_str + "よりどれくらい重要ですか";
@@ -468,17 +461,16 @@ var io = {
 
     //確認表示のためのlabel文字列を生成
     generateLabelStrForConfirm : function(compare_str, compared_str, idx){
+
+        if (ahp.SCALES[idx] === null) return "重み付けされていません";
+
         const WEIGHT_TBL = [
             "極めて重要ではない", "非常に重要ではない", "かなり重要ではない", 
             "少しくらい重要ではない","同じくらい重要", "少し重要",
             "かなり重要", "非常に重要", "極めて重要", ""
         ];
 
-        if(idx === WEIGHT_TBL.length - 1){
-            return "重み付けされていません";
-        } else {
-            return compare_str + "は" + compared_str + "より" + WEIGHT_TBL[idx] + "と重み付けしました.";
-        }
+        return compare_str + "は" + compared_str + "より" + WEIGHT_TBL[idx] + "と重み付けしました.";
     },
 
     //li要素に配列の各要素の値をプリント

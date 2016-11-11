@@ -181,7 +181,7 @@ $(function(){
         
         //ページのidによって処理を分ける
         //評価基準入力ページ
-        if(data.toPage.is("#input_criteria" || "#input_alternative" )){
+        if(data.toPage.is("#input_criteria") || data.toPage.is("#input_alternative")){
             io.printGoal(ahpParameters.goal);
         }   
 
