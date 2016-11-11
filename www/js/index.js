@@ -604,11 +604,10 @@ var ahp = {
         var priorities = [];					//総合重要度が入る配列
 
         //行列の乗算をして、総合重要度を求める
-        for(var i = 0; i < ahp.number_of_compair; i++){
-            priorities[i] = 0;
-            for(var j = 0; j < weights_alts[i].length; j++){
-                priorities[i] += weights_criteria[j] * weights_alts[i][j];
-                console.log(weights_criteria[j] + "*" + weights_alts[i][j]);
+        for(var criteria_idx = 0; criteria_idx < ahp.number_of_compair; criteria_idx++){
+            priorities[criteria_idx] = 0;
+            for(var alt_idx = 0; alt_idx < weights_alts[criteria_idx].length; alt_idx++){
+                priorities[criteria_idx] += weights_criteria[alt_idx] * weights_alts[criteria_idx][alt_idx];
             }
         }
 
